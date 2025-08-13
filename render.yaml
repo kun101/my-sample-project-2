@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tds-project2
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GENAI_API_KEY
+        sync: false
+      - key: NGROK_AUTHTOKEN
+        sync: false
+    healthCheckPath: /
