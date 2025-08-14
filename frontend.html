@@ -2,14 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FastAPI File Upload</title>
+  <title>TDS Project 2 : Data Analyst Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
-    pre { background: #f4f4f4; padding: 10px; }
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: rgba(148,163,184,.25);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --focus: #93c5fd;
+    }
+
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      max-width: 600px;
+      margin: 40px auto;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    h1 { color: var(--text); }
+    h2 { color: var(--muted); }
+
+    pre {
+      background: var(--panel);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: auto;
+      tab-size: 2;
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+      transition: background .2s ease, box-shadow .2s ease;
+    }
+    button:hover { background: var(--primary-hover) }
+    button:active { transform: translateY(0); }
+    button:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    input[type="file"] {
+      font-size: 14px;
+      color: var(--text);
+    }
+    input[type="file"]::file-selector-button,
+    input[type="file"]::-webkit-file-upload-button {
+      background: #1f2937;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      margin-right: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    input[type="file"]::file-selector-button:hover,
+    input[type="file"]::-webkit-file-upload-button:hover { background: #273244; }
+    input[type="file"]::file-selector-button:active,
+    input[type="file"]::-webkit-file-upload-button:active { background: #1b2433; }
+    input[type="file"]::file-selector-button:focus-visible,
+    input[type="file"]::-webkit-file-upload-button:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
-  <h2>Upload Files to FastAPI</h2>
+  <h1 style="margin-bottom: 0;">Data Analyst Agent</h1>
+  <h2 style="margin-top: 0;color: #888">TDS Project 2</h2>
   <form id="uploadForm">
     <input type="file" id="files" name="files" multiple>
     <br><br>

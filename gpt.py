@@ -9,7 +9,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("OPENAI_API_KEY environment variable is not set.")
 
-MODEL_NAME = "gpt-5"
+MODEL_NAME = "gpt-5-mini"
 
 SYSTEM_PROMPT = """
 You are a data extraction and analysis assistant.  
@@ -53,13 +53,13 @@ Your task is to generate Python 3 code that loads, scrapes, or reads the data ne
 
 4. Use only Python standard libraries plus pandas, numpy, beautifulsoup4, and requests unless otherwise necessary.
 
-5. If the data source is a webpage, download and parse it. If it’s a CSV/Excel, read it directly.
+5. If the data source is a webpage, download and parse it. If it's a CSV/Excel, read it directly.
 
 6. Do not explain the code.
 
 7. Output only valid Python code.
 
-8. Just scrap the data don’t do anything fancy.
+8. Just scrape the data don't do anything fancy.
 
 Return a JSON with:
 1. The 'code' field — Python code that answers the question.
@@ -89,8 +89,6 @@ in metadata also add JSON answer format if present.
         ],
         response_format={"type": "json_object"}
     )
-    
-    print(chat)
 
     # Path to the file
     file_path = os.path.join(folder, "metadata.txt")
@@ -98,7 +96,13 @@ in metadata also add JSON answer format if present.
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
             f.write("")
-    
+            
+    # Write number of tokens used to a token_usage.txt file in a new line
+    token_usage_path = os.path.join(folder, "token_usage.txt")
+    os.makedirs(os.path.dirname(token_usage_path), exist_ok=True)
+    with open(token_usage_path, "a") as f:
+        f.write(f"{chat.usage.total_tokens}\n")
+
     return json.loads(chat.choices[0].message.content)
 
 SYSTEM_PROMPT2 = """
@@ -160,6 +164,9 @@ STRICTLY follow the output format given in the question, if it asks for an array
         response_format={"type": "json_object"}
     )
     
-    print(chat)
+    token_usage_path = os.path.join(folder, "token_usage.txt")
+    os.makedirs(os.path.dirname(token_usage_path), exist_ok=True)
+    with open(token_usage_path, "a") as f:
+        f.write(f"{chat.usage.total_tokens}\n")
 
     return json.loads(chat.choices[0].message.content)

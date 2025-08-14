@@ -60,7 +60,7 @@ Your task is to generate Python 3 code that loads, scrapes, or reads the data ne
 
 7. Output only valid Python code.
 
-8. Just scrap the data don’t do anything fancy.
+8. Just scrape the data don’t do anything fancy.
 
 Return a JSON with:
 1. The 'code' field — Python code that answers the question.

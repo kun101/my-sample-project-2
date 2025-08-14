@@ -119,7 +119,7 @@ async def analyze(request: Request):
     
     
     while attempt < max_attempts:
-        logger.info("Step-3: Getting scrap code and metadata from llm. Tries count = %d", attempt)
+        logger.info("Step-3: Getting scrape code and metadata from llm. Tries count = %d", attempt)
         try:
             response = await parse_question_with_llm(
                 question_text=question_text,
@@ -131,7 +131,7 @@ async def analyze(request: Request):
                 # Write to file
                 with open(llm_response_file_path, "a") as f:
                     result = response
-                    result["comment"] = f"Step-3: Getting scrap code and metadata from llm. Tries count = %d {attempt}"
+                    result["comment"] = f"Step-3: Getting scrape code and metadata from llm. Tries count = %d {attempt}"
                     json.dump(result, f, indent=4)
                 break
         except Exception as e:
