@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,9 +8,13 @@ import aiofiles
 import json
 import logging
 from fastapi.responses import HTMLResponse
+import requests
 
 from task_engine import run_python_code
-from gpt import parse_question_with_llm, answer_with_data
+# For use with OpenAI's Models
+from gpt import parse_question_with_llm, answer_with_data, get_usage
+# For use with Google's Models
+# from gemini import parse_question_with_llm, answer_with_data
 
 app = FastAPI()
 
@@ -51,7 +56,11 @@ def last_n_words(s, n=25):
 def is_csv_empty(csv_path):
     return not os.path.exists(csv_path) or os.path.getsize(csv_path) == 0
 
-
+@app.get("/usage")
+async def token_usage(request: Request):
+    admin_key = os.getenv("OPENAI_ADMIN_KEY")
+    model = request.query_params.get("model") or "gpt-5-2025-08-07"
+    return await get_usage(admin_key, model)
 
 @app.post("/api")
 async def analyze(request: Request):
@@ -300,7 +309,6 @@ async def analyze(request: Request):
             f.seek(0)
             raw_content = f.read()
             return JSONResponse({"message": f"Error occured while processing result.json: {e}", "raw_result": raw_content})
-
 
 if __name__ == "__main__":
     import uvicorn

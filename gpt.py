@@ -1,15 +1,55 @@
 import os
 import json
 from openai import OpenAI
-from types import SimpleNamespace
+from datetime import datetime, timezone
+import requests
 
 # Get the API key from environment variable
-api_key = os.getenv("OPENAI_API_KEY")
-
-if not api_key:
+ADMIN_KEY = os.getenv("OPENAI_ADMIN_KEY")
+if not ADMIN_KEY:
+    raise ValueError("OPENAI_ADMIN_KEY environment variable is not set.")
+API_KEY = os.getenv("OPENAI_API_KEY")
+if not API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable is not set.")
 
-MODEL_NAME = "gpt-5-mini"
+MODEL_NAME = "gpt-5-mini-2025-08-07"
+TOKEN_THRESHOLD = 220000
+
+async def get_usage(admin_key, model_name):
+    try:
+        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        today_unix_seconds = int(today.timestamp())
+        params = {"start_time": today_unix_seconds, "group_by": ["model"], "models": [model_name]}
+        headers = {"Authorization": f"Bearer {admin_key}","Content-Type": "application/json"}
+        r = requests.get("https://api.openai.com/v1/organization/usage/completions", headers=headers, params=params, timeout=10)
+        if r.ok:
+            body = r.json()
+            data = body.get("data", [])
+            results = data[0].get("results", [])
+            input_tokens = results[0].get("input_tokens", 0) if results else 0
+            output_tokens = results[0].get("output_tokens", 0) if results else 0
+            total_tokens = input_tokens + output_tokens
+            # return total_tokens
+            return body
+    except Exception as e:
+        print(f"Error fetching usage data: {e}")
+        return None
+
+async def select_model():
+    global MODEL_NAME
+    try:
+        usage = await get_usage(ADMIN_KEY, "gpt-5-2025-08-07") # check gpt-5 usage
+        print("#"*20)
+        print(f"USAGE BY MODEL : {usage}")
+        print("#"*20)
+        if usage is not None and usage <= TOKEN_THRESHOLD:
+            MODEL_NAME = "gpt-5-2025-08-07" # if we are under the threshold, keep gpt-5 as the model
+        else:
+            MODEL_NAME = "gpt-5-mini-2025-08-07" # if we are over the threshold, switch to gpt-5-mini
+    except Exception as e:
+        print(f"Error selecting model: {e}. Proceeding with gpt-5-mini-2025-08-07")
+        # Keep using gpt-5-mini in the event of an error
+        MODEL_NAME = "gpt-5-mini-2025-08-07"
 
 SYSTEM_PROMPT = """
 You are a data extraction and analysis assistant.  
@@ -79,7 +119,15 @@ lastly i am saying again don't try to solve these questions.
 in metadata also add JSON answer format if present.
 """
 
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=API_KEY)
+    
+    await select_model()
+
+    # write model name in token_usage.txt
+    token_usage_path = os.path.join(folder, "token_usage.txt")
+    os.makedirs(os.path.dirname(token_usage_path), exist_ok=True)
+    with open(token_usage_path, "a") as f:
+        f.write(f"Using Model : {MODEL_NAME}\n")
 
     chat = client.chat.completions.create(
         model=MODEL_NAME,
@@ -151,7 +199,15 @@ STRICTLY follow the output format given in the question, if it asks for an array
         with open(file_path, "w") as f:
             f.write("")
 
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=API_KEY)
+    
+    await select_model()
+
+    # write model name in token_usage.txt
+    token_usage_path = os.path.join(folder, "token_usage.txt")
+    os.makedirs(os.path.dirname(token_usage_path), exist_ok=True)
+    with open(token_usage_path, "a") as f:
+        f.write(f"Using Model : {MODEL_NAME}\n")
 
     system_prompt2 = SYSTEM_PROMPT2.format(folder=folder)
 
