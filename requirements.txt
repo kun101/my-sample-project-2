@@ -1,9 +1,10 @@
 fastapi
 aiofiles
-google-generativeai
 black
 uvicorn[standard]
 gunicorn
-pyngrok
 python-multipart
 openai
+python-dotenv
+requests
+# google-generativeai : Add only if using Gemini

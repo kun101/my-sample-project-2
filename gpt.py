@@ -13,7 +13,9 @@ if not API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable is not set.")
 
 MODEL_NAME = "gpt-5-mini-2025-08-07"
-TOKEN_THRESHOLD = 220000
+PRIMARY_MODEL = "gpt-5-2025-08-07"
+FALLBACK_MODEL = "gpt-5-mini-2025-08-07"
+TOKEN_THRESHOLD = 250000
 
 async def get_usage(admin_key, model_name):
     try:
@@ -29,8 +31,7 @@ async def get_usage(admin_key, model_name):
             input_tokens = results[0].get("input_tokens", 0) if results else 0
             output_tokens = results[0].get("output_tokens", 0) if results else 0
             total_tokens = input_tokens + output_tokens
-            # return total_tokens
-            return body
+            return total_tokens
     except Exception as e:
         print(f"Error fetching usage data: {e}")
         return None
@@ -38,18 +39,18 @@ async def get_usage(admin_key, model_name):
 async def select_model():
     global MODEL_NAME
     try:
-        usage = await get_usage(ADMIN_KEY, "gpt-5-2025-08-07") # check gpt-5 usage
+        usage = await get_usage(ADMIN_KEY, PRIMARY_MODEL) # check primary model usage
         print("#"*20)
-        print(f"USAGE BY MODEL : {usage}")
+        print(f"USAGE BY PRIMARY MODEL ({PRIMARY_MODEL}) : {usage}")
         print("#"*20)
         if usage is not None and usage <= TOKEN_THRESHOLD:
-            MODEL_NAME = "gpt-5-2025-08-07" # if we are under the threshold, keep gpt-5 as the model
+            MODEL_NAME = PRIMARY_MODEL # if we are under the threshold, keep using the primary model
         else:
-            MODEL_NAME = "gpt-5-mini-2025-08-07" # if we are over the threshold, switch to gpt-5-mini
+            MODEL_NAME = FALLBACK_MODEL # if we are over the threshold, switch to the fallback model
     except Exception as e:
-        print(f"Error selecting model: {e}. Proceeding with gpt-5-mini-2025-08-07")
-        # Keep using gpt-5-mini in the event of an error
-        MODEL_NAME = "gpt-5-mini-2025-08-07"
+        print(f"Error selecting model: {e}. Proceeding with {FALLBACK_MODEL}")
+        # Keep using the fallback model in the event of an error
+        MODEL_NAME = FALLBACK_MODEL
 
 SYSTEM_PROMPT = """
 You are a data extraction and analysis assistant.  
