@@ -13,7 +13,7 @@ Run this FastAPI project on Linux/WSL as follows:
 
 # Host on Render
 1) Push your code to a public GitHub Repository
-2) Go to [text](https://render.com/)
+2) Go to [https://render.com](https://render.com/)
 3) Login using your GitHub Account
 4) Create a Web Service
 5) Link your repository to the project
